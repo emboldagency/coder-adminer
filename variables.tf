@@ -36,3 +36,45 @@ variable "proxy_mappings" {
   type        = list(string)
   default     = ["18080:adminer:8080"]
 }
+
+variable "db_server" {
+  description = "Database server hostname"
+  type        = string
+  default     = "postgres"
+}
+
+variable "db_username" {
+  description = "Database username"
+  type        = string
+  default     = "embold"
+}
+
+variable "db_password" {
+  description = "Database password"
+  type        = string
+  default     = "embold"
+  sensitive   = true
+}
+
+variable "db_name" {
+  description = "Default database name"
+  type        = string
+  default     = "postgres"
+}
+
+variable "db_driver" {
+  description = "Database driver (pgsql, server, sqlite, oracle, mssql)"
+  type        = string
+  default     = "pgsql"
+
+  validation {
+    condition     = contains(["pgsql", "server", "sqlite", "oracle", "mssql"], var.db_driver)
+    error_message = "db_driver must be one of: pgsql, server, sqlite, oracle, mssql"
+  }
+}
+
+variable "adminer_design" {
+  description = "Adminer theme/design name"
+  type        = string
+  default     = "pappu687"
+}

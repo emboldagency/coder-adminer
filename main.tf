@@ -20,7 +20,10 @@ locals {
   user_username  = try(data.coder_workspace_owner.me.name, "unknown")
   workspace_id   = try(data.coder_workspace_owner.me.id, "unknown")
   workspace_name = try(data.coder_workspace.me.name, "unknown")
+  plugin_content = file("${path.module}/adminer-auto-login.php")
 }
+
+// Removed docker_volume: plugin files are ephemeral and recreated on each container start.
 
 resource "docker_image" "adminer" {
   name          = data.docker_registry_image.adminer.name
@@ -34,6 +37,32 @@ resource "docker_container" "adminer" {
   image        = docker_image.adminer.name
   hostname     = "adminer"
   network_mode = var.docker_network_name
+  must_run     = true
+  # Run as default image user (adminer) for least privilege; we'll prepare plugins via entrypoint
+  user = "adminer"
+  env = [
+    "ADMINER_DEFAULT_SERVER=${var.db_server}",
+    "ADMINER_DEFAULT_USERNAME=${var.db_username}",
+    "ADMINER_DEFAULT_PASSWORD=${var.db_password}",
+    "ADMINER_DEFAULT_DB=${var.db_name}",
+    "ADMINER_DEFAULT_DRIVER=${var.db_driver}",
+    "ADMINER_DESIGN=${var.adminer_design}",
+  ]
+
+  # Populate plugin files and clean stale stubs before starting server.
+  entrypoint = ["sh", "-c", <<-EOT
+    set -eu
+    PLUG_DIR=/var/www/html/plugins-enabled
+    mkdir -p $PLUG_DIR
+    # Write plugin from file content
+    cat > $PLUG_DIR/auto-login.php <<'EOF'
+${local.plugin_content}
+EOF
+    chmod 0644 $PLUG_DIR/auto-login.php
+    # Start original server
+    exec entrypoint.sh docker-php-entrypoint php -S [::]:8080 -t /var/www/html
+  EOT
+  ]
 
   labels {
     label = "coder.owner"
@@ -72,6 +101,7 @@ resource "coder_app" "adminer" {
     threshold = 6
   }
 }
+
 
 resource "coder_script" "adminer_reverse_proxy" {
   agent_id           = var.agent_id

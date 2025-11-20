@@ -23,18 +23,41 @@ module "adminer" {
   agent_id            = coder_agent.main.id
   docker_network_name = docker_network.workspace[0].name
   resource_name_base  = "coder-${data.coder_workspace.me.id}"
-  proxy_mappings      = ["18080:adminer:8080"]
+
+  # Database connection (auto-filled in login form)
+  db_server   = "mysql"
+  db_username = "embold"
+  db_password = "embold"
+  db_name     = "mydatabase"
+  db_driver   = "server"
+  
+  # Optional: customize theme
+  adminer_design = "pappu687"
+  
+  # Optional: customize proxy mappings
+  proxy_mappings = ["18080:adminer:8080"]
 }
 ```
 
 ## Variables
 
+### Required
 - `agent_id` (string) - Coder agent id to attach the proxy script and app to
-- `docker_network_name` (string) - Docker network for the container
+- `docker_network_name` (string) - Docker network for the container. Default: `"bridge"`
 - `resource_name_base` (string) - Unique name prefix for docker resources
-- `container_memory_limit` (number) - Memory limit per container (MB). Default: 512
-- `container_user_id` (string|null) - Optional UID to run containers as
-- `proxy_mappings` (list(string)) - Optional list of mappings `local_port:remote_host:remote_port`. Default: `['18080:adminer:8080']`
+
+### Optional - Database Connection
+- `db_server` (string) - Database server hostname. Default: `"mysql"`
+- `db_username` (string) - Database username. Default: `"embold"`
+- `db_password` (string) - Database password (sensitive). Default: `"embold"`
+- `db_name` (string) - Default database name. Default: `"mysqlgit p"`
+- `db_driver` (string) - Database driver (`pgsql`, `server`, `sqlite`, `oracle`, `mssql`). Default: `"server"` (mysql)
+
+### Optional - UI & Network
+- `adminer_design` (string) - Adminer theme/design name. Default: `"pappu687"`
+- `proxy_mappings` (list(string)) - List of mappings `local_port:remote_host:remote_port`. Default: `["18080:adminer:8080"]`
+- `container_memory_limit` (number) - Memory limit per container (MB). Default: `512`
+- `container_user_id` (string|null) - Optional UID to run containers as. Default: `null`
 
 ## Notes
 
