@@ -2,16 +2,6 @@
 
 class AdminerAutoLogin
 {
-    public function credentials()
-    {
-        // Return array: [server, username, password]
-        return [
-            getenv('ADMINER_DEFAULT_SERVER') ?: 'mysql',
-            getenv('ADMINER_DEFAULT_USERNAME') ?: 'embold',
-            getenv('ADMINER_DEFAULT_PASSWORD') ?: 'embold'
-        ];
-    }
-
     public function loginFormField($name, $heading, $value)
     {
         // Preselect driver/system
@@ -25,23 +15,32 @@ class AdminerAutoLogin
                 . '<option value="mssql"' . ($driver == 'mssql' ? ' selected' : '') . '>MS SQL</option>'
                 . '</select>';
         }
+
+        // Prefill server
+        if ($name == 'server') {
+            $server = getenv('ADMINER_DEFAULT_SERVER') ?: 'mysql';
+            return $heading . '<input name="auth[server]" value="' . htmlspecialchars($server) . '">';
+        }
+
         // Prefill username
         if ($name == 'username') {
             $username = getenv('ADMINER_DEFAULT_USERNAME') ?: 'embold';
             return $heading . '<input name="auth[username]" value="' . htmlspecialchars($username) . '">';
         }
+
         // Prefill password
         if ($name == 'password') {
             $password = getenv('ADMINER_DEFAULT_PASSWORD') ?: 'embold';
             return $heading . '<input type="password" name="auth[password]" value="' . htmlspecialchars($password) . '">';
         }
+
         // Prefill database
         if ($name == 'db') {
             $db = getenv('ADMINER_DEFAULT_DB') ?: 'mysql';
             return $heading . '<input name="auth[db]" value="' . htmlspecialchars($db) . '">';
         }
-        // Default rendering for other fields
+
         return null;
     }
 }
-return new AdminerAutoLogin();
+return new AdminerAutoLogin;
