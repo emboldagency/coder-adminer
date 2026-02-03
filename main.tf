@@ -92,7 +92,7 @@ resource "coder_app" "adminer" {
   url          = "http://localhost:18080"
   share        = "authenticated"
   subdomain    = true
-  icon         = "https://www.adminer.org/favicon.ico"
+  icon         = "https://api.embold.net/icons/?name=adminer.svg"
   order        = 3
 
   healthcheck {
@@ -107,7 +107,7 @@ resource "coder_script" "adminer_reverse_proxy" {
   agent_id           = var.agent_id
   script             = templatefile("${path.module}/run.sh", { PROXY_LINE = join(" ", var.proxy_mappings) })
   display_name       = "Reverse Proxy"
-  icon               = "https://www.kali.org/tools/socat/images/socat-logo.svg"
+  icon               = "https://api.embold.net/icons/?name=socat.svg"
   run_on_start       = true
   start_blocks_login = true
 }
