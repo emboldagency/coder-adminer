@@ -1,5 +1,9 @@
 # coder-adminer
 
+> [!CAUTION]
+> **DEPRECATION NOTICE:** This standalone repository is no longer maintained.
+> The **coder terraform module** has been migrated to: [**coder-registry**](https://github.com/emboldagency/coder-registry).
+
 Terraform module to provision Adminer as a standalone module for Coder templates.
 
 This module creates:
